@@ -1,6 +1,6 @@
 import react, { Suspense, useEffect, useState, } from "react";
 import { useParams } from "react-router-dom";
-import { collection, doc, getDoc, getDocs, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import db from "../../firebase/firestore";
 import PollResults from "./PollResults";
 
@@ -17,26 +17,50 @@ export default function Poll() {
     let [optionFourCount, setOptionFourCount] = useState(0);
 
     const onOption1 = async () => {
-        setVotingStatus(true);
-        setOptionOneCount(optionOneCount + 1);
+        try {
+            let pollRef = doc(db, 'polls', pollingID);
+            await updateDoc(pollRef, {
+                optionACount: optionOneCount + 1
+            })
+            setVotingStatus(true);
+            console.log(`Successfully updated ${pollRef.id}`);
+        } catch(e) { console.log(e); }
     };
 
     
     const onOption2 = async () => {
-        setVotingStatus(true);
-        setOptionTwoCount(optionTwoCount + 1);
+        try {
+            let pollRef = doc(db, 'polls', pollingID);
+            await updateDoc(pollRef, {
+                optionBCount: optionTwoCount + 1
+            })
+            setVotingStatus(true);
+            console.log(`Successfully updated ${pollRef.id}`);
+        } catch(e) { console.log(e); }
     };
 
     
     const onOption3 = async () => {
-        setVotingStatus(true);
-        setOptionThreeCount(optionThreeCount + 1);
+        try {
+            let pollRef = doc(db, 'polls', pollingID);
+            await updateDoc(pollRef, {
+                optionCCount: optionThreeCount + 1
+            })
+            setVotingStatus(true);
+            console.log(`Successfully updated ${pollRef.id}`);
+        } catch(e) { console.log(e); }
     };
 
     
     const onOption4 = async () => {
-        setVotingStatus(true);
-        setOptionFourCount(optionFourCount + 1);
+        try {
+            let pollRef = doc(db, 'polls', pollingID);
+            await updateDoc(pollRef, {
+                optionDCount: optionFourCount + 1
+            })
+            setVotingStatus(true);
+            console.log(`Successfully updated ${pollRef.id}`);
+        } catch(e) { console.log(e); }
     };
 
     useEffect(() => {
@@ -57,7 +81,10 @@ export default function Poll() {
                     setTitle(data.title);
                     setOptions(data.options);
                     setPollingID(doc.id);
-                    console.log(doc.data());
+                    setOptionOneCount(data.optionACount);
+                    setOptionTwoCount(data.optionBCount);
+                    setOptionThreeCount(data.optionCCount);
+                    setOptionFourCount(data.optionDCount);
                 }
             });
         });
@@ -76,7 +103,7 @@ export default function Poll() {
                         <button onClick={onOption4}>{options[3]}</button><br></br>
                     </div>
                 ) : (
-                    <PollResults title={title} pollID={pollingID} options={options} option1Count={optionOneCount} option2Count={optionTwoCount} option3Count={optionThreeCount} option4Count={optionFourCount}/>
+                    <PollResults pollID={pollingID} />
                 )}
             </div>
         </Suspense>

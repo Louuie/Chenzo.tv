@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import db from "../../firebase/firestore";
 import { Link, NavLink } from "react-router-dom";
@@ -10,7 +10,7 @@ export default function CreatePoll() {
     let [pollCreated, isPollCreated] = useState(false);
     let [pollID, setPollID] = useState('');
 
-    const onPollCreation = async (e) => {
+    const onPollCreation = async (e : any) => {
         e.preventDefault();
         try {
             let options = [
@@ -26,7 +26,8 @@ export default function CreatePoll() {
                 optionACount: 0,
                 optionBCount: 0,
                 optionCCount: 0,
-                optionDCount: 0
+                optionDCount: 0,
+                IPAddresses: ''
             });
             isPollCreated(true);
             setPollID(pollRef.id);

@@ -1,67 +1,92 @@
-import { collection, onSnapshot } from "firebase/firestore";
-import { PieChart } from "react-minimal-pie-chart";
+import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+import { useParams } from "react-router-dom";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
 import db from "../../firebase/firestore";
 import React, { useEffect, useState } from "react";
 import './PollResults.css';
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 
+export default function PollResults() {
 
-
-
-export default function PollResults({ pollID }) {
-
+    let params = useParams();
     let [title, setTitle] = useState('');
-    let [votePercentageACalc, setVotePercentageACalc] = useState(0);
-    let [votePercentageBCalc, setVotePercentageBCalc] = useState(0);
-    let [votePercentageCCalc, setVotePercentageCCalc] = useState(0);
-    let [votePercentageDCalc, setVotePercentageDCalc] = useState(0);
+    let [docExists, setDocExists] = useState(true);
+    let [firstOptionValue, setFirstOptionValue] = useState(0);
+    let [secondOptionValue, setSecondOptionValue] = useState(0);
+    let [thirdOptionValue, setThirdOptionValue] = useState(0);
+    let [fourthOptionValue, setFourthOptionValue] = useState(0);
     let [options, setOptions] = useState(['']);
-    let [results, setResults] = useState([{}]);
+    let [results, setResults] = useState([0, 0, 0, 0]);
     let [isLoading, setLoadingStatus] = useState(true);
 
-
     useEffect(() => {
-        onSnapshot(collection(db, 'polls'), (snapshot) => {
-            snapshot.docs.map((doc) => {
-                if(doc.id === pollID) {
-                    const data = doc.data();
-                    let totalVotes = data.optionACount + data.optionBCount + data.optionCCount + data.optionDCount;
-                    setVotePercentageACalc(Math.round(data.optionACount / totalVotes * 100));
-                    setVotePercentageBCalc(Math.round(data.optionBCount / totalVotes * 100));
-                    setVotePercentageCCalc(Math.round(data.optionCCount / totalVotes * 100));
-                    setVotePercentageDCalc(Math.round(data.optionDCount / totalVotes * 100));
-                    setTitle(data.title);
-                    setOptions(data.options);
-                    const calcData = [
-                        {title: `${options[0]}`, value: Math.round(votePercentageACalc), color: '#E38627'},
-                        {title: `${options[1]}`, value: Math.round(votePercentageBCalc), color: '#C13C37'},
-                        {title: `${options[2]}`, value: Math.round(votePercentageCCalc), color: '#6A2135'},
-                        {title: `${options[3]}`, value: Math.round(votePercentageDCalc), color: '#873e23'},
-                    ];
-                    setResults(calcData);
-                    setTimeout(() => { setLoadingStatus(false); }, 1200);
-                }
-            })
-        })
-    }, [results]);
+        const firebaseInsert = async () => {
+            const checkRef = doc(db, 'polls', `${params.id}`)
+            const checkSnap = await getDoc(checkRef);
+            if(checkSnap.exists()) {
+                onSnapshot(collection(db, 'polls'), (snapshot) => {
+                    snapshot.docs.map((doc) => {
+                        if(doc.id === checkSnap.id) {
+                            const data = doc.data();
+                            setFirstOptionValue(data.optionACount);
+                            setSecondOptionValue(data.optionBCount);
+                            setThirdOptionValue(data.optionCCount);
+                            setFourthOptionValue(data.optionDCount);
+                            setTitle(data.title);
+                            setOptions(data.options);
+                            setResults([data.optionACount, data.optionBCount, data.optionCCount, data.optionDCount]);
+                            setTimeout(() => { setLoadingStatus(false); }, 1200);
+                        }
+                    });
+                });
+            } else setDocExists(false);
+        };
+        firebaseInsert();
+    }, [firstOptionValue || secondOptionValue || thirdOptionValue || fourthOptionValue]);
 
 
     
     return (
         <div>
-            {!isLoading ? (
-                <div>
-                    <h1>{title}</h1>
-                        <PieChart data={[
-                            { title: `${options[0]}`, value: votePercentageACalc, color: '#E38627' },
-                            { title: `${options[1]}`, value: votePercentageBCalc, color: '#C13C37' },
-                            { title: `${options[2]}`, value: votePercentageCCalc, color: '#6A2135' },
-                            { title: `${options[3]}`, value: votePercentageDCalc, color: '#154c79' },
-                        ]} viewBoxSize={[100, 100]} label={(label) => label.dataEntry.title}/>
-                </div>
-            ) : (
-                <h1>Loading!</h1>
-            )}
+            <div>
+                {docExists ? (
+                    <div className="">
+                        <h1>{title}</h1>
+                        <Pie data={{
+                        labels: [...options],
+                        datasets: [
+                            {
+                                label: `# of Votes on ${title}`,
+                                data: [firstOptionValue, secondOptionValue, thirdOptionValue, fourthOptionValue],
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)',
+                                  ],
+                                  borderWidth: 1,
+                            },
+                        ]
+                    }} height={'200'} width={'200'} />
+                    </div>
+                ) : (
+                    <div>
+                        <h1>This Document does not exist!</h1>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

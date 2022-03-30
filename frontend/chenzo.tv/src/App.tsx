@@ -9,7 +9,7 @@ import PollResults from './components/Poll/PollResults';
 function App() {
   return (
     <Routes>
-      <Route path='/poll/create' element={<CreatePoll />}/><Route path='/poll/:id' element={<Poll />}/><Route path='/poll/results/:id' element={<PollResults />}/>
+      <Route path='/poll/create' element={<CreatePoll />}/><Route path='/poll/:id' element={<Poll />}/>
     </Routes>
   );
 }

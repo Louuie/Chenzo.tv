@@ -1,5 +1,8 @@
 import react, { Suspense, useEffect, useState, } from "react";
+import Button from '../ui/Button';
+import { NumberOne, NumberTwo, NumberThree, NumberFour, ChartBar} from "phosphor-react";
 import axios from 'axios';
+import Spinner from '../Spinner/Spinner';
 import { NavLink, useParams } from "react-router-dom";
 import { collection, doc, getDoc, onSnapshot, arrayUnion, updateDoc } from "firebase/firestore";
 import db from "../../firebase/firestore";
@@ -8,7 +11,8 @@ import PollResults from "./PollResults";
 export default function Poll() {
     let params = useParams();
     let [ipAddress, setIPAddress] = useState('');
-    let [entryIPAddresses, setEntryIPAddresses] = useState(['']);
+    let [resultClicked, setResultClickedStatus] = useState(false);
+    let [isLoading, setLoadingStatus] = useState(true);
     let [docStatus, setDocStatus] = useState(true);
     let [title, setTitle] = useState('');
     let [votingStatus, setVotingStatus] = useState(false);
@@ -70,6 +74,7 @@ export default function Poll() {
         } catch(e) { console.log(e); }
     };
 
+
     // get user IP Address useEffect Hook
     useEffect(() => {
         axios.get('http://ip-api.com/json/?fields=61439').then((res) => setIPAddress(res.data.query)).catch((err) => console.log(err));
@@ -84,7 +89,6 @@ export default function Poll() {
                     snapshot.docs.map(doc => {
                         if(doc.id === params.id) {
                             const data = doc.data();
-                            setEntryIPAddresses([data.IPAddresses]);
                             axios.get('http://ip-api.com/json/?fields=61439').then((res) => checkDuplicateEntries(data.IPAddresses, res.data.query)).catch((err) => console.log(err));
                             setTitle(data.title);
                             setOptions(data.options);
@@ -105,31 +109,52 @@ export default function Poll() {
         entryIPAddresses.forEach(ip => {
             if(ip === clientIPAddress) setVotingStatus(true);
         });
+        setTimeout(() => {setLoadingStatus(false);}, 1200);
     }
 
     return (
-        <Suspense fallback={<div></div>}>
             <div>
                 {docStatus ? (
-                                <div>
-                                    {!votingStatus ? (
-                                    <div>
-                                        <h1>{title}</h1>
-                                        <button onClick={onOption1}>{options[0]}</button><br></br>
-                                        <button onClick={onOption2}>{options[1]}</button><br></br>
-                                        <button onClick={onOption3}>{options[2]}</button><br></br>
-                                        <button onClick={onOption4}>{options[3]}</button><br></br>
-                                    </div>
-                                    ) : (
-                                        <NavLink to={`/poll/results/${pollingID}`} children={<PollResults />}/>
-                                    )}
-                                </div>
-                          ) : (       
+                <div>
+                    <div>
+                        {!isLoading ? (
                         <div>
-                            <h1>This document does not exist!</h1>
+                            {!votingStatus ? (
+                                <div className="flex md:flex-col items-center justify-center py-40 bg-gray-900">
+                                    {!resultClicked ? (
+                                    <div className="flex-col text-center bg-gray-800 h-[28.5rem] md:w-3/12 lg:w-3/12 w-auto">
+                                        <h1 className="text-3xl font-bold py-4">{title}</h1>
+                                        <div className="flex flex-col py-4 m-auto w-80">
+                                            <Button label={options[0]} onButtonClick={onOption1}
+                                                icon={NumberOne}></Button><br></br>
+                                            <Button label={options[1]} onButtonClick={onOption2}
+                                                icon={NumberTwo}></Button><br></br>
+                                            <Button label={options[2]} onButtonClick={onOption3}
+                                                icon={NumberThree}></Button><br></br>
+                                            <Button label={options[3]} onButtonClick={onOption4}
+                                                icon={NumberFour}></Button>
+                                        </div>
+                                        <div className='// flex justify-end py-4 px-4'>
+                                            <Button label={"Results"} icon={ChartBar} onButtonClick={()=>
+                                                setResultClickedStatus(true)}/>
+                                        </div>
+                                    </div>
+                                    ) : <PollResults id={pollingID} />}
+                                </div>
+                            ) : (
+                                <PollResults id={pollingID} />
+                            )}
                         </div>
-                    )}
+                        ) : (
+                            <Spinner />
+                        )}
+                    </div>
                 </div>
-        </Suspense>
+                ) : (
+                     <div>
+                        <h1>This document does not exist!</h1>
+                    </div>
+                )}
+            </div>
     )
 }

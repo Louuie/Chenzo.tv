@@ -7,10 +7,16 @@ import React, { useEffect, useState } from "react";
 import './PollResults.css';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface Props {
+    id : string
+}
+/**
+ * @param {string} id PollID (DocumentID)
+ * @description Renders PollResults in a Pie chart
+ */
+export default function PollResults({ id } : Props) {
 
-export default function PollResults() {
-
-    let params = useParams();
+    //let params = useParams();
     let [title, setTitle] = useState('');
     let [docExists, setDocExists] = useState(true);
     let [firstOptionValue, setFirstOptionValue] = useState(0);
@@ -23,7 +29,7 @@ export default function PollResults() {
 
     useEffect(() => {
         const firebaseInsert = async () => {
-            const checkRef = doc(db, 'polls', `${params.id}`)
+            const checkRef = doc(db, 'polls', `${id}`)
             const checkSnap = await getDoc(checkRef);
             if(checkSnap.exists()) {
                 onSnapshot(collection(db, 'polls'), (snapshot) => {
@@ -49,37 +55,41 @@ export default function PollResults() {
 
     
     return (
-        <div>
             <div>
                 {docExists ? (
-                    <div className="">
-                        <h1>{title}</h1>
-                        <Pie data={{
-                        labels: [...options],
-                        datasets: [
-                            {
-                                label: `# of Votes on ${title}`,
-                                data: [firstOptionValue, secondOptionValue, thirdOptionValue, fourthOptionValue],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                    'rgba(75, 192, 192, 0.2)',
-                                    'rgba(153, 102, 255, 0.2)',
-                                    'rgba(255, 159, 64, 0.2)',
-                                  ],
-                                  borderColor: [
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(153, 102, 255, 1)',
-                                    'rgba(255, 159, 64, 1)',
-                                  ],
-                                  borderWidth: 1,
-                            },
-                        ]
-                    }} height={'200'} width={'200'} />
+                    <div>
+                        <h1 className='flex-1 text-center text-4xl font-[700]'>{title}</h1>
+                        <div className='flex-1 align-middle max-w-60'> 
+                            <Pie data={{
+                            labels: [...options],
+                            datasets: [
+                                {
+                                    label: `# of Votes on ${title}`,
+                                    data: [firstOptionValue, secondOptionValue, thirdOptionValue, fourthOptionValue],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                    ],
+                                    borderWidth: 1,
+                                },
+                            ]
+                        }} options={{
+                            responsive: true,
+                            maintainAspectRatio: false
+                    }} width={"400"} height={"400"}/>
+                        </div>
                     </div>
                 ) : (
                     <div>
@@ -87,6 +97,5 @@ export default function PollResults() {
                     </div>
                 )}
             </div>
-        </div>
     )
 }

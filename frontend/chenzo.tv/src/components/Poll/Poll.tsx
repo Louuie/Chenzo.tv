@@ -1,12 +1,13 @@
 import react, { Suspense, useEffect, useState, } from "react";
 import Button from '../ui/Button';
-import { NumberOne, NumberTwo, NumberThree, NumberFour, ChartBar} from "phosphor-react";
+import { NumberOne, NumberTwo, NumberThree, NumberFour, ChartBar, ShareNetwork} from "phosphor-react";
 import axios from 'axios';
 import Spinner from '../Spinner/Spinner';
 import { NavLink, useParams } from "react-router-dom";
 import { collection, doc, getDoc, onSnapshot, arrayUnion, updateDoc } from "firebase/firestore";
 import db from "../../firebase/firestore";
 import PollResults from "./PollResults";
+import UrlCopyInput from '../ui/URLCopyInput';
 
 export default function Poll() {
     let params = useParams();
@@ -120,25 +121,32 @@ export default function Poll() {
                         {!isLoading ? (
                         <div>
                             {!votingStatus ? (
-                                <div className="flex md:flex-col items-center justify-center py-40 bg-gray-900">
+                                <div className="flex flex-col items-center justify-center py-[5rem] bg-gray-900">
                                     {!resultClicked ? (
-                                    <div className="flex-col text-center bg-gray-800 h-[28.5rem] md:w-3/12 lg:w-3/12 w-auto">
-                                        <h1 className="text-3xl font-bold py-4">{title}</h1>
-                                        <div className="flex flex-col py-4 m-auto w-80">
-                                            <Button label={options[0]} onButtonClick={onOption1}
-                                                icon={NumberOne}></Button><br></br>
-                                            <Button label={options[1]} onButtonClick={onOption2}
-                                                icon={NumberTwo}></Button><br></br>
-                                            <Button label={options[2]} onButtonClick={onOption3}
-                                                icon={NumberThree}></Button><br></br>
-                                            <Button label={options[3]} onButtonClick={onOption4}
-                                                icon={NumberFour}></Button>
+                                    <div>
+                                        <div className="flex-col text-center bg-gray-800 h-auto w-auto md:h-[25rem] md:w-[40rem]">
+                                            <h1 className="flex-1 text-3xl font-bold py-2">{title}</h1>
+                                            <div className="grid grid-rows-4 grid-flow-row gap-4 px-36 m-auto w-auto">
+                                                <Button label={options[0]} onButtonClick={onOption1} icon={NumberOne}></Button>
+                                                <Button label={options[1]} onButtonClick={onOption2} icon={NumberTwo}></Button>
+                                                <Button label={options[2]} onButtonClick={onOption3} icon={NumberThree}></Button>
+                                                <Button label={options[3]} onButtonClick={onOption4} icon={NumberFour}></Button>
+                                            </div>
+                                            <div className='flex justify-end py-12 px-2'>
+                                                <Button label={"Results"} icon={ChartBar} onButtonClick={()=>
+                                                    setResultClickedStatus(true)}/>
+                                            </div>
+                                    </div>
+                                    <div className="flex-1 items-center text-left py-2 px-2 bg-gray-800 h-[9rem] w-auto mt-4 ">
+                                        <div className="flex">
+                                            <ShareNetwork className="mt-[0.26rem]" width={"20"} height={"20"}/>
+                                            <div className="font-bold text-lg">Share</div>
                                         </div>
-                                        <div className='// flex justify-end py-4 px-4'>
-                                            <Button label={"Results"} icon={ChartBar} onButtonClick={()=>
-                                                setResultClickedStatus(true)}/>
+                                        <div className="align-middle py-6"> 
+                                            <UrlCopyInput id={pollingID} />       
                                         </div>
                                     </div>
+                                </div>
                                     ) : <PollResults id={pollingID} />}
                                 </div>
                             ) : (

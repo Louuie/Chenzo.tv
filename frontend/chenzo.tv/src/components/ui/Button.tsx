@@ -13,7 +13,7 @@ export default function Button({label, icon: Icon, onButtonClick} : Props) {
     return (
         <button className={`flex space-x-auto items-center text-left py-2 px-2 transition bg-cyan-800 hover:bg-cyan-900 text-white`} onClick={onButtonClick}>
             <Icon />
-            <div className="text-left text-lg font-bold">{label}</div>
+            <div className="text-left text-xl font-bold">{label}</div>
         </button>
     )
 }

@@ -16,10 +16,10 @@ export default function URLCopyInput({ id } : Props) {
     if(!urlClicked) {
        return ( <div className="h-screen">
             <div className='flex space-x-auto items-center align-middle justify-center'>
-                <div className="flex group has-tooltip bg-gray-600 border-2 border-cyan-800 border-solid py-1 px-1 rounded-md cursor-pointer align-middle justify-center items-center">
+                <div className="flex group has-tooltip bg-gray-600 border-2 border-cyan-800 border-solid py-1 px-1 rounded-md align-middle justify-center items-center">
                     <div className='tooltip rounded-md shadow-lg p-1 bg-cyan-800 text-gray-100 text-sm -mt-20'>Click to Copy</div>
                     <Copy className='mt-[0.125rem] mr-1' width={"18"} height={"18"} />
-                    <div className="text-sm hover:text-gray-900 opacity-90 transition" onClick={()=> {
+                    <div className="text-sm hover:text-gray-900 opacity-90 transition cursor-pointer" onClick={()=> {
                         navigator.clipboard.writeText(url); setURLClickStatus(true);}}>{url}</div>
                 </div>
             </div>

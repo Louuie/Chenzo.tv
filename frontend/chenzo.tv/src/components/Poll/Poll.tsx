@@ -5,7 +5,7 @@ import axios from 'axios';
 import Spinner from '../Spinner/Spinner';
 import { NavLink, useParams } from "react-router-dom";
 import { collection, doc, getDoc, onSnapshot, arrayUnion, updateDoc } from "firebase/firestore";
-import db from "../../firebase/firestore";
+import { db } from "../../firebase/firestore";
 import PollResults from "./PollResults";
 import UrlCopyInput from '../ui/URLCopyInput';
 

@@ -1,35 +1,11 @@
-import axios, { AxiosResponse } from 'axios';
-import dotenv from 'dotenv';
-import path from 'path';
-import express, { Request, Response, Router } from 'express';
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from 'firebase/firestore';
-import admin from './firebase';
-
-dotenv.config({ path: path.resolve(__dirname, "../config/config.env") });
-let userInformation = {  };
+import axios from 'axios';
+import { Request, Response } from 'express';
+import { clientID, clientSecret } from '../../env';
+import { storeUserInformation, createFirebaseUser, getFirebaseToken, fetchAccessToken } from '../db/firestore';
 
 interface Auth {
     access_token: string
 }
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCkiL_ZyjBEiY6NfD7ihk20nBP-PePkjXU",
-    authDomain: "chenzotv-e811a.firebaseapp.com",
-    projectId: "chenzotv-e811a",
-    storageBucket: "chenzotv-e811a.appspot.com",
-    messagingSenderId: "939651085415",
-    appId: "1:939651085415:web:9df1f9afeb0e68213490c2"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
-
-
 
 // VALIDATE USER TOKEN
 const validateToken = async (token: string) => {
@@ -45,25 +21,6 @@ const validateToken = async (token: string) => {
         }).catch((e) => resolve(401));
     });
 };
-
-
-const fetchAccessToken = async (uid : string) => {
-    const userRef = doc(db, 'users', uid);
-    const userSnap = await getDoc(userRef);
-    return new Promise((resolve, reject) => {
-        // QUERY THROUGH THE DATABASE AND GRAB WHERE THE DOCUMENT ID EQUALS THE USER ID SO WE CAN GRAB THEIR ACCESS TOKEN
-        if(!userSnap.exists()) reject(401);
-        onSnapshot(collection(db, 'users'), (snapshot) => {
-            snapshot.docs.map(doc => {
-                if(doc.id !== uid) reject(401);
-                const data = doc.data();
-                resolve(data.accessToken);
-            })
-        });
-    })
-};
-
-
 
 
 
@@ -83,40 +40,14 @@ export const twitchAuth = async (req: Request, res: Response) => {
         } catch (err) { throw err; }
       };
 
-      // CREATES FIREBASE USER SO THAT WAY WE CAN AUTH THE USER WITH FIREBASE
-      const createFirebaseUser = async (displayName : string, id : string) => {
-          admin.auth().updateUser(id, {
-              displayName: displayName
-          }).catch((e) => {
-              // new user
-              admin.auth().createUser({
-                  uid: id,
-                  displayName: displayName
-              }).catch((e) => console.log(e));
-          });
-      };
-
-      // CREATES FIREBASE TOKEN WITH USER ID AND RETURNS IT
-      const getFirebaseToken = async (id: string) => {
-        const customToken = await admin.auth().createCustomToken(id);
-        return customToken;
-    }
-
-    // STORE THE USERS INFORMATION IN A DATABASE
-    const storeUserInformation = async (id : string, display_name : any, auth: Auth) => {
-        setDoc(doc(db, "users", id), {
-            displayName: display_name.slice(7), 
-            accessToken: auth.access_token
-        }).then((res) => console.log(`Successfully Created ${res}`)).catch((e) => {console.log(e)});
-    };
 
     const code = req.query.code;
     if(!code) res.status(400).json({Error: "Missing required code query parameter"});
     try {
         const { data } = await axios.post(
         `https://api.twitch.tv/kraken/oauth2/token?` +
-        `client_id=w6if41rebjkg7yl6ko24mfvgdn22d8&` +
-        `client_secret=mfv186nqhc7ho398ddrcbt7wmb4dih&` +
+        `client_id=${clientID}&` +
+        `client_secret=${clientSecret}&` +
         `code=${code}&` +
         `grant_type=authorization_code&` +
         `redirect_uri=http://localhost:3000/admin/login/callback`

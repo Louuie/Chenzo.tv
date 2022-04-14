@@ -1,8 +1,9 @@
 import React, { ChangeEvent, useState } from "react";
 import { collection, addDoc, setDoc, doc } from "firebase/firestore";
-import db from "../../firebase/firestore";
+import { db } from "../../firebase/firestore";
 import { Link, NavLink } from "react-router-dom";
 import Poll from "./Poll";
+import Button from "../ui/Button";
 
 
 export default function CreatePoll() {
@@ -41,19 +42,18 @@ export default function CreatePoll() {
             {pollCreated ? (
                 <NavLink to={`/poll/${pollID}`} children={<Poll/>}/>
             ) : (
-            <div>
+            <div className="flex justify-center py-[5rem]">
                 <form onSubmit={onPollCreation}>
-                    <label id={"title"}>Title</label><br></br>
-                    <input type="text" name="title"></input><br></br>
-                    <label id={"option1"}>Option 1</label><br></br>
-                    <input type="text" name="option1"></input><br></br>
-                    <label id={"option2"}>Option 2</label><br></br>
-                    <input type="text" name="option2"></input><br></br>
-                    <label id={"option3"}>Option 3</label><br></br>
-                    <input type="text" name="option3"></input><br></br>
-                    <label id={"option4"}>Option 4</label><br></br>
-                    <input type="text" name="option4"></input><br></br>
-                    <input type="submit" value="Submit"></input><br></br>
+                    <div className="bg-gray-800 text-gray-100 px-8 py-6">
+                        <input type="text" placeholder="Title" className="text-gray-800 mb-4"></input><br></br>
+                        <input type="text" placeholder="Option1" className="text-gray-800 mb-4"></input><br></br>
+                        <input type="text" placeholder="Option2" className="text-gray-800 mb-4"></input><br></br>
+                        <input type="text" placeholder="Option3" className="text-gray-800 mb-4"></input><br></br>
+                        <input type="text" placeholder="Option4" className="text-gray-800 mb-4"></input><br></br>
+                        <div className="py-2 px-16">
+                            <Button label="Submit" />
+                        </div>
+                    </div>
                 </form>
             </div>
             )}

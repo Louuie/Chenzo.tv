@@ -2,7 +2,7 @@ import { collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import db from "../../firebase/firestore";
+import { db } from "../../firebase/firestore";
 import React, { useEffect, useState } from "react";
 import './PollResults.css';
 ChartJS.register(ArcElement, Tooltip, Legend);
